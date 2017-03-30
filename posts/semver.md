@@ -56,3 +56,9 @@ Running the following command will extract the current version from your `.semve
 ``` bash
 $ rake build
 ```
+
+Running the application with this semver file will yield:
+
+``` bash
+Version: '0.1.0'
+```
