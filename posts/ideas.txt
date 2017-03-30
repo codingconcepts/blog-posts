@@ -1,0 +1,31 @@
+-   = written, needs publishing
+x   = written and publishec
+
+security
+  [ ] ssl via let's encrypt
+  [ ] 2fa
+  [x] jwt with appleboy
+
+mongodb
+  [ ] clustering
+  [ ] proximity
+  [ ] ttl indexes
+
+go present
+  [ ] installation
+  [ ] cross-machine startup flags (how I do it at work)
+
+coding katas
+  [ ] string calculator step-by-step
+  [ ] guilded rose step-by-step
+  [ ] playing cards (step-by-step with benchmarking)
+
+tools
+  [x] gin-toll
+  [x] how to fix PANIC
+
+general
+  [x] Rake
+  [x] Semver
+  [ ] gRPC
+  [ ] Amazon Polly
