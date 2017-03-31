@@ -1,6 +1,9 @@
 -   = written, needs publishing
 x   = written and publishec
 
+go
+  [ ] ldflags
+
 security
   [ ] ssl via let's encrypt
   [ ] 2fa
@@ -23,9 +26,14 @@ coding katas
 tools
   [x] gin-toll
   [x] how to fix PANIC
+  [ ] vscode settings
 
 general
   [x] Rake
   [x] Semver
   [ ] gRPC
   [ ] Amazon Polly
+  [ ] go -> telegraf -> influxdb -> grafana
+
+interview ideas
+  [ ] interview ides
