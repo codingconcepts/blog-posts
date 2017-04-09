@@ -3,6 +3,7 @@ x   = written and publishec
 
 go
   [ ] ldflags
+  [ ] building a load-balancer (random vs container/ring with locking)
 
 security
   [ ] ssl via let's encrypt
@@ -32,8 +33,7 @@ general
   [x] Rake
   [x] Semver
   [ ] gRPC
-  [ ] Amazon Polly
   [ ] go -> telegraf -> influxdb -> grafana
 
 interview ideas
-  [ ] interview ides
+  [ ] interview ideas
