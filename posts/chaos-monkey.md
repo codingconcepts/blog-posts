@@ -4,11 +4,11 @@ I know, I know, I can hear the questions already...  Why not just use the Netfli
 
 By far the most difficult part of this project was its design.  There are many ways to crack a nut but some just seem less shit than others (and I don't want to be caught with my pants-down when it comes to adding new features later on).
 
-### Overview
+##### Overview
 
 I made some fundamental decisions/assumptions up-front.  These not only helped the design along but - in my opinion - have paved the way to the solution being more scalable and generally more sensible:
 
-#### Everything will be controlled by an `orchestrator`
+###### Everything will be controlled by an `orchestrator`
 
 * This prevents logic from bleeding into components that could otherwise be very simple.
 
@@ -18,7 +18,7 @@ I made some fundamental decisions/assumptions up-front.  These not only helped t
 
 * It it goes rogue, I'll have a brain to turn off.
 
-#### An `agent` will be installed on every machine where something needs to happen
+###### An `agent` will be installed on every machine where something needs to happen
 
 * The orchestrator will issue commands, it won't perform actions.
 
@@ -28,27 +28,27 @@ I made some fundamental decisions/assumptions up-front.  These not only helped t
 
 * Regardless of the OS/platform, I'll be able to compile an agent for it.
 
-#### The orchestrator will not be aware of the agents
+###### The orchestrator will not be aware of the agents
 
 * I don't want to have to do anything when an agent is added or removed.
 
 * I don't want to blast holes in my infrastructure just to give a chaos monkey access to machines.
 
-#### Agents will run for particular `applications`
+###### Agents will run for particular `applications`
 
 * An application is something like "StatsRabbitMQ" or "TelegrafServer".
 
 * Grouping applications will allow the orchestrator to be smart about how much or how little of an application's services it affects.
 
-#### All communication will be done via a messaging layer
+###### All communication will be done via a messaging layer
 
 * Inherently more scalable as agents come and go.
 
 * Offers a level of indirection, preventing all nodes from knowing more than they need to.
 
-### Technologies used
+##### Technologies used
 
-#### Messaging
+###### Messaging
 
 I decided to bake [NATS](http://nats.io/) into my solution for the first cut.  I've played with it before and it does enough of what a clunkier AMQP message bus like RabbitMQ would be able to do, to make my project work.  I'd definitely consider adding support for additional message buses in the future but for now, this is what NATS was born to do.
 
@@ -110,7 +110,7 @@ Agent 1:  Kills docker container called "rabbit-server" on Linux box MACHINE01
 
 Agent 2:  Kills process called "epmd.exe" on Windows box MACHINE2
 
-#### Scheduling
+###### Scheduling
 
 I'm using [cron](https://en.wikipedia.org/wiki/Cron) in the orchestrator to schedule tasks.  Each task performs a scatter-gather operation for an application group to ascertain the agents configured for that application.
 
@@ -131,11 +131,11 @@ func (o *Orchestrator) Start() {
 }
 ```
 
-### Configuration
+##### Configuration
 
-Configuration is also simple.  Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more
+Configuration is also simple.  Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.
 
-Here's the orchestrator's config file:
+###### Orchestrator config
 
 ``` json
 {
@@ -190,7 +190,7 @@ Here's the orchestrator's config file:
     </tr>
 </table>
 
-Here's the agent's config file:
+###### Agent config
 
 ``` json
 {
@@ -207,7 +207,7 @@ Here's the agent's config file:
 ```
 
 <table>
-    <th>Ke</th>
+    <th>Key</th>
     <th>Value</th>
     <tr>
         <td>natsHosts</td>
@@ -238,3 +238,5 @@ Here's the agent's config file:
         <td>Self-explanatory</td>
     </tr>
 </table>
+
+###### Todos
