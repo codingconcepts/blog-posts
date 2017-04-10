@@ -1,73 +1,83 @@
-For my company's last hackathon, I decided to roll-my-own chaos monkey.
+For my latest last hackathon project, I decided to roll-my-own chaos monkey.
 
-I know, I know, I can hear the questions already...  Why not just use the Netflix Simian Army suite?  The answer's simple, we don't use Spinnaker and that's an essential part of their chaos monkey.
-
-By far the most difficult part of this project was its design.  There are many ways to crack a nut but some just seem less shit than others (and I don't want to be caught with my pants-down when it comes to adding new features later on).
+Why not just use the Netflix Simian Army suite I can already hear you cry?  The answer's simple, we don't use [Spinnaker](http://www.spinnaker.io/) for continuous delivery and that's an essential part of their chaos monkey.
 
 ##### Overview
 
-I made some fundamental decisions/assumptions up-front.  These not only helped the design along but - in my opinion - have paved the way to the solution being more scalable and generally more sensible:
+Now bear with me on this bit, I don't *mean* to sound like a douche but it's important to get this out the way...  The most difficult part of a project should probably be its design, there, douchy bit done.  Harking back to one of my favourite sayings, *shit in, shit out*.
+
+Having created enough poorly-designed solutions in my time, I know when I've done it right.  Here are my design decisions/assumptions:
 
 ###### Everything will be controlled by an `orchestrator`
 
-* This prevents logic from bleeding into components that could otherwise be very simple.
-
-* Configuration can be done once and in one place.
-
-* A simple scheduler will be used to execute actions.
-
-* It it goes rogue, I'll have a brain to turn off.
-
-###### An `agent` will be installed on every machine where something needs to happen
+* Give one component a brain and keep all other components stupid.
 
 * The orchestrator will issue commands, it won't perform actions.
 
-* I'll have a simple agent that does one thing and does it well.
+###### Every action will be performed by an `agent`
 
-* Go compiles to tiny binaries and you don't need Go to run Go, so hoofing tiny agent applications around is no problem.
+* A simple, brainless agent will do one thing and do it well.
 
-* Regardless of the OS/platform, I'll be able to compile an agent for it.
+* Go binaries are tiny, so it makes sense to have an agent everywhere something needs to happen.
 
-###### The orchestrator will not be aware of the agents
+###### The orchestrator won't be aware of the agents
 
 * I don't want to have to do anything when an agent is added or removed.
 
 * I don't want to blast holes in my infrastructure just to give a chaos monkey access to machines.
 
-###### Agents will run for particular `applications`
-
-* An application is something like "StatsRabbitMQ" or "TelegrafServer".
-
-* Grouping applications will allow the orchestrator to be smart about how much or how little of an application's services it affects.
-
 ###### All communication will be done via a messaging layer
 
 * Inherently more scalable as agents come and go.
 
-* Offers a level of indirection, preventing all nodes from knowing more than they need to.
+* Prevents nodes from knowing about the environment they're operating in.
+
+###### Agents will run for particular `application groups`
+
+* This further abstracts the orchestrator from the agents.
+
+* Grouping applications will allow the orchestrator to be smart about how much or how little of an application's services it affects.
+
+* An application will be something like "StatsRabbitMQ" or "CatVideoAPIServer".
 
 ##### Technologies used
 
 ###### Messaging
 
-I decided to bake [NATS](http://nats.io/) into my solution for the first cut.  I've played with it before and it does enough of what a clunkier AMQP message bus like RabbitMQ would be able to do, to make my project work.  I'd definitely consider adding support for additional message buses in the future but for now, this is what NATS was born to do.
+I decided to bake [NATS](http://nats.io/) into my solution for the first cut.  It's very simple, easy to configure and cluster and the [Go client](https://github.com/nats-io/go-nats) is brilliant.  NATS is such a good fit for this type of project that I think I'll leave it as a baked-in messaging solution.  Woot, now I can use the increasingly popular `"{{.ProjectName}}, an opinionated {{.ProjectType}}"` project headline ;)
 
-I'm making use of the [scatter-gather](http://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html) pattern to allow the orchestrator to ask for agents handling a particular application.
+I'm using the [scatter-gather](http://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html) pattern so the orchestrator can ask for agents which are responsible for a particular application:
+
+**Orchestrator**:  "Who's responsible for managing "StatsRabbitMQ" services?"
+
+**Agent 1 on MACHINE01**:  "I am!"
+
+**Agent 2 on MACHINE02**:  "I am!"
+
+**Agent 3 on MACHINE03**:  "I am!"
+
+**Agent 4 on MACHINE04**:  "I am!"
+
+**Orchestrator**:  "Ok, well Agent 1 and Agent 3, wherever you are, kill your service now"
+
+**Agent 1**:  *Kills docker container called "rabbit-server" on Linux box MACHINE01*
+
+**Agent 3**:  *Kills process called "epmd.exe" on Windows box MACHINE03*
 
 Minus the error handling for brevity, here's the scatter-gather function from the orchestrator's perpective:
 
 ``` go
 func (o *Orchestrator) Process(a Application) {
-	agents, _ := o.ScatterGather(a)
+    agents, _ := o.ScatterGather(a.Name)
 
-	// select a number of applications at random to kill
-	randomAgents := model.TakeRandom(agents, a.Percentage)
+    // select a number of applications at random to kill
+    randomAgents := model.TakeRandom(agents, a.Percentage)
 
-	for _, topic := range randomAgents {
-		if err := o.IssueKillCommand(topic); err != nil {
-			o.Logger.Error(err)
-		}
-	}
+    for _, agent := range randomAgents {
+        if err := o.IssueKillCommand(agent); err != nil {
+            o.Logger.Error(err)
+        }
+    }
 }
 ```
 
@@ -75,65 +85,41 @@ Minus the error handling (again for brevity), here's the scatter-gather function
 
 ``` go
 func (a *Agent) Start() {
-	gatherChan, gatherStop, _ := a.chanSubscribe(a.Application)
-	defer gatherStop()
+    gatherChan, gatherStop, _ := a.chanSubscribe(application)
+    defer gatherStop()
 
-	for {
-		select {
-		case msg := <-gatherChan:
-			a.GatherResponse(msg.Reply)
-        // ommitted other select cases
-		}
-	}
-}
-
-func (a *Agent) GatherResponse(reply string) (err error) {
-	return a.Connection.PublishRequest(reply, a.KillInbox, []byte(a.Application))
+    for {
+        select {
+        case msg := <-gatherChan:
+            a.Conn.PublishRequest(msg.Reply, a.KillInbox, []byte(application))
+        // other select cases omitted
+        }
+    }
 }
 ```
 
-Here's an example workflow to give you an idea what I'm doing with the scatter-gather pattern:
-
-Orchestrator:  "Who's responsible for managing "StatsRabbitMQ" services?"
-
-Agent 1:  "I am!"
-
-Agent 2:  "I am!"
-
-Agent 3:  "I am!"
-
-Agent 4:  "I am!"
-
-Orchestrator:  "Ok, well Agent 1 and Agent 2, wherever you are, kill your service now"
-
-Agent 1:  Kills docker container called "rabbit-server" on Linux box MACHINE01
-
-Agent 2:  Kills process called "epmd.exe" on Windows box MACHINE2
-
 ###### Scheduling
 
-I'm using [cron](https://en.wikipedia.org/wiki/Cron) in the orchestrator to schedule tasks.  Each task performs a scatter-gather operation for an application group to ascertain the agents configured for that application.
+I'm using [cron](https://en.wikipedia.org/wiki/Cron) in the orchestrator to schedule tasks.  I decided on cron because it's familiar; when people dive into the guts of my chaos monkey, I want them to feel at home, not like they're having to learn new concepts just to get it to work.  Each task performs a scatter-gather operation for an application group to ascertain the agents configured for that application.
 
-I decided to use cron (namely the populare Go library from [robfig](https://github.com/robfig/cron)) to make this possible, as the resulting code is clean and easy to understand.
-
-The following code is currently the entirety of my Orchestrator's startup logic:
+Here's the orchestrator's startup scheduling code in its entirety:
 
 ``` go
 func (o *Orchestrator) Start() {
-	o.cronRunner = cron.New()
-	for _, c := range o.Applications {
-		if err := o.cronRunner.AddFunc(c.Schedule, func() { o.Process(c) }); err != nil {
-			o.Logger.Fatal(err)
-		}
-	}
+    o.cronRunner = cron.New()
+    for _, c := range o.Applications {
+        if err := o.cronRunner.AddFunc(c.Schedule, func() { o.Process(c) }); err != nil {
+            o.Logger.Fatal(err)
+        }
+    }
 
-	o.cronRunner.Run()
+    o.cronRunner.Run()
 }
 ```
 
 ##### Configuration
 
-Configuration is also simple.  Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.
+Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.  That's made for some pretty straightforward configuration:
 
 ###### Orchestrator config
 
@@ -162,15 +148,7 @@ Configuration is also simple.  Following on from my initial design decisions, th
     <th>Value</th>
     <tr>
         <td>natsHosts</td>
-        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS' new service discovery will allow your cluster to dynamically grow.</td>
-    </tr>
-    <tr>
-        <td>natsUser</td>
-        <td>Self-explanatory</td>
-    </tr>
-    <tr>
-        <td>natsPassword</td>
-        <td>Self-explanatory</td>
+        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS service discovery will allow your cluster to grow dynamically.</td>
     </tr>
     <tr>
         <td>gatherTimeout</td>
@@ -181,12 +159,8 @@ Configuration is also simple.  Following on from my initial design decisions, th
         <td>A higher number allows for more agents to response in quick succession (a Go channel will block writes if the buffer isn't large enough).</td>
     </tr>
     <tr>
-        <td>logLevel</td>
-        <td>Self-explanatory</td>
-    </tr>
-    <tr>
         <td>applications</td>
-        <td>A collection of application groups.  Each contains the application's name, the kill schedule and the percentage of an application's agents that will be asked for perform a kill on each run.</td>
+        <td>A collection of application groups.  Each contains the application's name, the kill schedule and the percentage of an application's agents that will be asked to perform a kill on each run.</td>
     </tr>
 </table>
 
@@ -211,32 +185,22 @@ Configuration is also simple.  Following on from my initial design decisions, th
     <th>Value</th>
     <tr>
         <td>natsHosts</td>
-        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS' new service discovery will allow your cluster to dynamically grow.</td>
-    </tr>
-    <tr>
-        <td>natsUser</td>
-        <td>Self-explanatory</td>
-    </tr>
-    <tr>
-        <td>natsPassword</td>
-        <td>Self-explanatory</td>
+        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS service discovery will allow your cluster to grow dynamically.</td>
     </tr>
     <tr>
         <td>application</td>
-        <td>The name of the application group this agent performs actions against.  This needs to match up to the application name known by the orchestrator.</td>
+        <td>The name of the application group this agent performs actions against.  This needs to match up with the application name known by the orchestrator.</td>
     </tr>
     <tr>
         <td>applicationType</td>
-        <td>This tells the agent what kind of application it needs to kill, be that a process, the machine itself or a docker container etc.</td>
+        <td>This tells the agent what kind of application it needs to kill, be it a process, the machine itself or a docker container etc.</td>
     </tr>
     <tr>
         <td>identifier</td>
         <td>The process name or docker image name</td>
     </tr>
-    <tr>
-        <td>logLevel</td>
-        <td>Self-explanatory</td>
-    </tr>
 </table>
 
-###### Todos
+##### What's left
+
+I'd love to get some hands on this, so if you're in need of a chaos monkey yourself (or just want to make a chaos monkey ... more chaotic), I'd love to hear from you.
