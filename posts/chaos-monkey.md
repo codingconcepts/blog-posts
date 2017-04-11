@@ -194,9 +194,3 @@ Following on from my initial design decisions, the orchestrator is responsible f
         <td>The process name or docker image name</td>
     </tr>
 </table>
-
-### What's left
-
-I'd love to get some hands on this, so if you're in need of a chaos monkey yourself (or just want to make an existing chaos monkey more chaotic), I'd love to hear from you and pull requests are of course welcomed!
-
-[github.com/codingconcepts/albert](https://github.com/codingconcepts/albert)
