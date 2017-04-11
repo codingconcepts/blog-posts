@@ -1,12 +1,10 @@
 For my latest last hackathon project, I decided to roll-my-own chaos monkey.
 
-Why not just use the Netflix Simian Army suite I can already hear you cry?  The answer's simple, we don't use [Spinnaker](http://www.spinnaker.io/) for continuous delivery and that's an essential part of their chaos monkey.
+Why not just use the Netflix Simian Army suite I hear you cry?  The answer's simple, we don't use [Spinnaker](http://www.spinnaker.io/) for continuous delivery and that's an essential part of their chaos monkey.
 
 ##### Overview
 
-Now bear with me on this bit, I don't *mean* to sound like a douche but it's important to get this out the way...  The most difficult part of a project should probably be its design, there, douchy bit done.  Harking back to one of my favourite sayings, *shit in, shit out*.
-
-Having created enough poorly-designed solutions in my time, I know when I've done it right.  Here are my design decisions/assumptions:
+Having poorly-designed enough software in my time, I know when it's less shit than it could be.  Here are my design decisions/assumptions:
 
 ###### Everything will be controlled by an `orchestrator`
 
@@ -26,7 +24,11 @@ Having created enough poorly-designed solutions in my time, I know when I've don
 
 * I don't want to blast holes in my infrastructure just to give a chaos monkey access to machines.
 
-###### All communication will be done via a messaging layer
+###### Agents won't be aware of the orchestrator
+
+* See above
+
+###### All communication will be done via a messaging
 
 * Inherently more scalable as agents come and go.
 
@@ -46,7 +48,7 @@ Having created enough poorly-designed solutions in my time, I know when I've don
 
 I decided to bake [NATS](http://nats.io/) into my solution for the first cut.  It's very simple, easy to configure and cluster and the [Go client](https://github.com/nats-io/go-nats) is brilliant.  NATS is such a good fit for this type of project that I think I'll leave it as a baked-in messaging solution.  Woot, now I can use the increasingly popular `"{{.ProjectName}}, an opinionated {{.ProjectType}}"` project headline ;)
 
-I'm using the [scatter-gather](http://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html) pattern so the orchestrator can ask for agents which are responsible for a particular application:
+I'm using the [scatter-gather](http://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html) pattern, which allows the orchestrator to publish a request for agent responses indirectly:
 
 **Orchestrator**:  "Who's responsible for managing "StatsRabbitMQ" services?"
 
@@ -64,16 +66,13 @@ I'm using the [scatter-gather](http://www.enterpriseintegrationpatterns.com/patt
 
 **Agent 3**:  *Kills process called "epmd.exe" on Windows box MACHINE03*
 
-Minus the error handling for brevity, here's the scatter-gather function from the orchestrator's perpective:
+Minus the error handling and logging for brevity, here's the scatter-gather function from the orchestrator's perpective:
 
 ``` go
 func (o *Orchestrator) Process(a Application) {
     agents, _ := o.ScatterGather(a.Name)
-
-    // select a number of applications at random to kill
-    randomAgents := model.TakeRandom(agents, a.Percentage)
-
-    for _, agent := range randomAgents {
+    
+    for _, agent := range model.TakeRandom(agents, a.Percentage) {
         if err := o.IssueKillCommand(agent); err != nil {
             o.Logger.Error(err)
         }
@@ -81,7 +80,7 @@ func (o *Orchestrator) Process(a Application) {
 }
 ```
 
-Minus the error handling (again for brevity), here's the scatter-gather function from the agent's perspective:
+Minus the error handling and logging (again for brevity), here's the scatter-gather function from the agent's perspective:
 
 ``` go
 func (a *Agent) Start() {
@@ -100,7 +99,7 @@ func (a *Agent) Start() {
 
 ###### Scheduling
 
-I'm using [cron](https://en.wikipedia.org/wiki/Cron) in the orchestrator to schedule tasks.  I decided on cron because it's familiar; when people dive into the guts of my chaos monkey, I want them to feel at home, not like they're having to learn new concepts just to get it to work.  Each task performs a scatter-gather operation for an application group to ascertain the agents configured for that application.
+I'm using [cron](https://en.wikipedia.org/wiki/Cron) in the orchestrator to schedule tasks.  I decided on cron because it's familiar.  When people dive into the guts of my chaos monkey, I want them to feel at home, not like they're having to learn new concepts just to get it to work.  Each task performs a scatter-gather operation for an application group to ascertain the agents configured for that application.
 
 Here's the orchestrator's startup scheduling code in its entirety:
 
@@ -119,19 +118,14 @@ func (o *Orchestrator) Start() {
 
 ##### Configuration
 
-Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.  That's made for some pretty straightforward configuration:
+Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.  That's made for some pretty straightforward configuration (obvious bits have been omitted):
 
 ###### Orchestrator config
 
 ``` json
 {
-    "natsHosts": [ "nats://localhost:4222" ],
-    "natsUser": "harambe",
-    "natsPass": "Imk)^InzID2QM*YMWPchUZ",
     "gatherTimeout": "2s",
     "gatherChanSize": 10,
-
-    "logLevel": "debug",
     
     "applications": [
         {
@@ -146,10 +140,6 @@ Following on from my initial design decisions, the orchestrator is responsible f
 <table>
     <th>Key</th>
     <th>Value</th>
-    <tr>
-        <td>natsHosts</td>
-        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS service discovery will allow your cluster to grow dynamically.</td>
-    </tr>
     <tr>
         <td>gatherTimeout</td>
         <td>How long to wait (time.Duration for scatter-gather responses before continuing).</td>
@@ -168,25 +158,15 @@ Following on from my initial design decisions, the orchestrator is responsible f
 
 ``` json
 {
-    "natsHosts": [ "nats://localhost:4222" ],
-    "natsUser": "harambe",
-    "natsPass": "Imk)^InzID2QM*YMWPchUZ",
-    
     "application": "notepad",
     "applicationType": "process",
     "identifier": "notepad.exe",
-
-    "logLevel": "debug"
 }
 ```
 
 <table>
     <th>Key</th>
     <th>Value</th>
-    <tr>
-        <td>natsHosts</td>
-        <td>A colletion of NATS endpoints.  You actually need only one endpoint and NATS service discovery will allow your cluster to grow dynamically.</td>
-    </tr>
     <tr>
         <td>application</td>
         <td>The name of the application group this agent performs actions against.  This needs to match up with the application name known by the orchestrator.</td>
@@ -203,4 +183,6 @@ Following on from my initial design decisions, the orchestrator is responsible f
 
 ##### What's left
 
-I'd love to get some hands on this, so if you're in need of a chaos monkey yourself (or just want to make a chaos monkey ... more chaotic), I'd love to hear from you.
+I'd love to get some hands on this, so if you're in need of a chaos monkey yourself (or just want to make an existing chaos monkey more chaotic), I'd love to hear from you and pull requests are of course welcomed!
+
+[github.com/codingconcepts/albert](https://github.com/codingconcepts/albert)
