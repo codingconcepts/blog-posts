@@ -2,7 +2,7 @@ For my latest last hackathon project, I decided to roll-my-own chaos monkey.
 
 Why not just use the Netflix Simian Army suite I hear you cry?  The answer's simple, we don't use [Spinnaker](http://www.spinnaker.io/) for continuous delivery and that's an essential part of their chaos monkey.
 
-##### Overview
+### Design
 
 Having poorly-designed enough software in my time, I know when it's less shit than it could be.  Here are my design decisions/assumptions:
 
@@ -42,7 +42,13 @@ Having poorly-designed enough software in my time, I know when it's less shit th
 
 * An application will be something like "StatsRabbitMQ" or "CatVideoAPIServer".
 
-##### Technologies used
+###### There would be no "un-kill" operation
+
+* All operations will test an application's ability to recover from failure
+
+* All operations will test the ability of interconnected applications to recover
+
+### Technologies used
 
 ###### Messaging
 
@@ -116,7 +122,7 @@ func (o *Orchestrator) Start() {
 }
 ```
 
-##### Configuration
+### Configuration
 
 Following on from my initial design decisions, the orchestrator is responsible for scheduling and nothing more, while the agents are responsible for killing processes/machines etc. and nothing more.  That's made for some pretty straightforward configuration (obvious bits have been omitted):
 
@@ -181,7 +187,7 @@ Following on from my initial design decisions, the orchestrator is responsible f
     </tr>
 </table>
 
-##### What's left
+### What's left
 
 I'd love to get some hands on this, so if you're in need of a chaos monkey yourself (or just want to make an existing chaos monkey more chaotic), I'd love to hear from you and pull requests are of course welcomed!
 
