@@ -1,3 +1,11 @@
+### Introduction
+
+###### Foreword
+
+This project is by no means complete!  If you'd like to get involved and cause some destruction, I'd love to have some contributors and pull requests!
+
+[github.com/codingconcepts/albert](https://github.com/codingconcepts/albert)
+
 For my latest last hackathon project, I decided to roll-my-own chaos monkey.
 
 Why not just use the Netflix Simian Army suite I hear you cry?  The answer's simple, we don't use [Spinnaker](http://www.spinnaker.io/) for continuous delivery and that's an essential part of their chaos monkey.
