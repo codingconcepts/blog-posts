@@ -2,8 +2,11 @@
 x   = written and publishec
 
 go
+  [ ] bringing go into a company
   [ ] ldflags
   [ ] building a load-balancer (random vs container/ring with locking)
+  [ ] vs c# syntax
+  [ ] vs c# performance
 
 security
   [ ] ssl via let's encrypt

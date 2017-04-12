@@ -50,7 +50,7 @@ Having poorly-designed enough software in my time, I know when it's less shit th
 
 * An application will be something like "StatsRabbitMQ" or "CatVideoAPIServer".
 
-###### There would be no "un-kill" operation
+###### There'll be no "un-kill" operation
 
 * All operations will test an application's ability to recover from failure
 
