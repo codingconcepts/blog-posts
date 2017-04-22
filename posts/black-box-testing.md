@@ -44,10 +44,9 @@ Looks great!  You commit and deploy to production.  Users *love* having the abil
 
 Then I checked out my exago.io [score](https://www.exago.io/project/github.com/codingconcepts/albert) and ran through the checklist (their gamification slant on improving code really makes sense to me):
 
-`Blackbox Tests: In addition to standard tests, does the project have blackbox tests?	
-`
+`Blackbox Tests: In addition to standard tests, does the project have blackbox tests?`
 
-After a bit of digging, I found that they were referring to Go's blackbox testing tool `testing/quick`.  So I had a play...  Read the following code carefully.
+After a bit of digging, I found that they were referring to Go's black box testing tool `testing/quick`.  So I had a play...  Read the following code carefully.
 
 ``` go
 func TestBlackBoxCheckBetween(t *testing.T) {
@@ -76,7 +75,7 @@ FAIL
 exit status 1
 ```
 
-The output of this test has just made me acutely aware of how fragile my `Between` method was (not to mention most of the other methods I've *ever* written).  With very little effort, `testing/quick` has just surfaced the following assumptions in my code:
+The output of this test has just made me acutely aware of how fragile my `Between` method was (not to mention every other function I've *ever* written).  With very little effort, `testing/quick` has just surfaced the following assumptions in my code:
 
 * Users will know what values to pass in
 * I know what value users will pass in
