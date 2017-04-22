@@ -1,0 +1,1 @@
+I've tried to introduce Go into 2 different companies.  Once successfully, once ... not successfully.

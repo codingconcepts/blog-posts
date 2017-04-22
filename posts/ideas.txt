@@ -1,5 +1,5 @@
 -   = written, needs publishing
-x   = written and publishec
+x   = written and published
 
 go
   [ ] bringing go into a company
