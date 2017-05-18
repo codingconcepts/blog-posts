@@ -8,6 +8,10 @@ go
   [ ] vs c# syntax
   [ ] vs c# performance
 
+people and projects
+  [ ] brilliant code
+  [ ] bvp (bearly viable product)
+
 security
   [ ] ssl via let's encrypt
   [ ] 2fa
@@ -20,7 +24,7 @@ mongodb
 
 go present
   [ ] installation
-  [ ] cross-machine startup flags (how I do it at work)
+  [ ] remote access startup flags (how I make presentations available to other machines at work)
 
 coding katas
   [ ] string calculator step-by-step
