@@ -1,11 +1,15 @@
-# Know when goroutines will finish
+One of the most enduring phrases I've every picked up as a developer is this:
 
-This example demonstrates the importance of knowing when your goroutines will finish.
+*What could **possibility** go wrong?*
 
-It functions as a simple bank account, with a channel for crediting and another for debiting.
+It's basically Murphey's Law, made into a t-shirt and I recite it like a mantra before beginning every project and committing to every assumption I make.
 
-## Things to note
+Recently, I hit an obscure bug which took me well over a day to fix and it all boiled down to the fact that I hadn't paid close enough attention to my one golden rule.  Talking of golden rules, the Go community state that you should never start a goroutine you don't intend to finish.
 
-The number of workers exacerbates the problem but owing to the nature of `select` statements and the way it synchronises channel reads/writes, it's not the root cause of the issue.  You could drop the worker count to 1 and the problem will persist.
+*What could **possibility** go wrong?*
 
-The `select` statement definitely sychronises the access to the `balance` variable.  Even if you perform all modifications to balance in synchronised blocks (e.g. `atomic.Add`), the problem will persist.
+"Nothing", I thought and developed an infinitely looping channel pipe:
+
+``` go
+
+```

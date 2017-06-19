@@ -1,16 +1,24 @@
--   = written, needs publishing
-x   = written and published
+Blog post ideas
+===============
+
+
+-   = started
++   = finished
+x   = published
 
 go
+  [ ] ending goroutines
   [ ] bringing go into a company
   [ ] ldflags
   [ ] building a load-balancer (random vs container/ring with locking)
   [ ] vs c# syntax
   [ ] vs c# performance
+  [ ] closures and tear-down
+  [ ] logging with logrus (UTCFormatter, hooks for testing etc.)
 
 people and projects
-  [ ] brilliant code
-  [ ] bvp (bearly viable product)
+  [-] brilliant code
+  [-] bvp (bearly viable product)
 
 security
   [ ] ssl via let's encrypt
