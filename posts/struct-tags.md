@@ -25,6 +25,7 @@ The struct tags in this example give Go's JSON encoder an explicit name to use w
 ```
 
 ##### Background
+
 My team recently deployed a [12-factor](https://12factor.net/) application into Production and as per factor III of the methodology, we're storing our config in "the environment" (environment variables).
 
 In vanilla Go, this means writing one of the following:
