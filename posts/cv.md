@@ -13,7 +13,7 @@ I started developing software professionally in 2006 and in my time as a develop
 
 ##### Education
 <div style="text-align: justify">
-Kingston University (2005 - 2009) - First-Class with Honours and awarded "Best Software Engineer" by the BCS.
+Kingston University (2005 - 2009) - First-Class with Honours and awarded "Best Software Engineer" by the BCS.<br/><br/>
 
 A-Grade modules include Foundations of Algorithms, Internet Security, Software Quality, Internet Protocols and Services, Systems Analysis and Design, Business Organisation and Practice, Network Software and a double-A for my dissertation.
 <br/><br/>
@@ -39,7 +39,7 @@ td.left {
   </tr>
   <tr>
     <td class="left">Databases</td>
-    <td>SQL Server, Postgres (and CockroachDB), MySQL, Oracle, Sybase,MongoDB, Couchbase, Redis and InfluxDB</td>
+    <td>SQL Server, Postgres (and CockroachDB), MySQL, Oracle, Sybase, MongoDB, Couchbase, Redis and InfluxDB</td>
   </tr>
   <tr>
     <td class="left">Messaging</td>
@@ -47,7 +47,7 @@ td.left {
   </tr>
   <tr>
     <td class="left">Cloud</td>
-    <td>AWS, Azure and Digital Ocean</td>
+    <td>Digital Ocean, AWS and Azure</td>
   </tr>
   <tr>
     <td class="left">CI</td>
@@ -71,7 +71,7 @@ The software created by the IVR team handles many thousands of calls at any one 
 
 In addition to my work in the IVR team, I am propagating the use of the Go programming language across the department.  I'm doing this by way of lunch-and-learn sessions, one-on-one tutoring and providing projects kick-offs and code reviews.<br/><br/>
 
-My proudest achievement at NewVoiceMedia to-date, is the adoption of Go for a mission-critical text-to-speech service.  The company decided to use Go, following my recommendations and I’ve enjoyed teaching the language to my team members and completing the system well within our estimate.<br/><br/>
+My proudest achievement at NewVoiceMedia to-date, is the spear-heading of a department-wide adoption of Go.  To show the company that Go was the right tool for the job, I lead my team in the development of a mission-critical text-to-speech service.  A number of other mission-critical production systems have followed suit and I continue to mentor the wider DevOps team and advocate the use of the language.<br/><br/>
 </div>
 
 ###### Smartodds (August 2014 - July 2016)
@@ -79,7 +79,7 @@ My proudest achievement at NewVoiceMedia to-date, is the adoption of Go for a mi
 <div style="text-align: justify">
 At Smartodds, I worked in an agile team responsible for bet placement and market data/stats retrieval for quant models.  This role allowed me to function as a front-office and server-side developer interchangeably and I became a go-to for the middle tier because of my work with RabbitMQ; building the company’s central message bus, which is used across the business and extensively by clients outside the business.<br/><br/>
 
-I was known for my love of developing proof-of-concepts and my ability to build them quickly.  My versatility, sense of teamwork, readiness to help and mentor colleagues was also frequently noted.  In addition to my day-to-day duties, I could be relied upon to scout out technologies which would benefit the company.  In my time at Smartodds, I scouted out and oversaw the adoption of ZeroMQ, RabbitMQ, Dapper and LINQPad.<br/><br/>
+I was known for my love of developing proof-of-concepts and my ability to build them quickly.  My versatility, sense of teamwork, readiness to help and mentor colleagues was also frequently noted.  In addition to my day-to-day duties, I could be relied upon to scout out technologies which would benefit the company.  In my time at Smartodds, I oversaw the adoption of RabbitMQ, Dapper and LINQPad.<br/><br/>
 
 One of my favourite non-technical responsibilities at Smartodds was the developer interview process.  I liaised with recruiters, vetted candidates, produced interview content and conducted phone and face-to-face interviews.<br/><br/>
 </div>
@@ -93,7 +93,7 @@ At Glencore, I functioned as Subject Matter Expert for UX and UI development and
 ###### Barclays Capital (April 2010 - November 2011)
 
 <div style="text-align: justify">
-During my time at BarCap, I helped design, develop and build automated tests for the WPF-based base and precious metals trading platform.  I fostered great relationships with the traders, sales and operations staff through work groups, presentations and third-line support.<br/><br/>
+During my time at BarCap, I helped design, develop and build automated tests for the WPF-based base and precious metals trading platform.  I fostered great relationships with the traders, sales and operations teams and held regular work groups for them.<br/><br/>
 
 My proudest achievement at BarCap was the design and development of a real-time WPF position-monitoring interface, used heavily by traders, sales and operations.<br/><br/>
 </div>
@@ -101,17 +101,17 @@ My proudest achievement at BarCap was the design and development of a real-time 
 ###### Navitas Solutions (June 2009 - April 2010)
 
 <div style="text-align: justify">
-In my role at Navitas, I developed bespoke solutions that interfaced with all major Global Distribution Systems (GDS) for clients in the travel industry using C#, WPF, WCF, MySQL and the Boo programming language.<br/><br/>
+In my role at Navitas, I used C#, WPF, WCF, MySQL and the Boo programming language to develop bespoke solutions that interfaced with all major Global Distribution Systems (GDS) for clients in the travel industry.<br/><br/>
 
-My proudest achievement at Navitas was the design and development of a robust application framework, which acts as a transparent interface between Navitas and all GDSs.  It’s used as the foundation for all of their products and is used by many thousands of travel agents today.<br/><br/>
+My proudest achievement at Navitas was the design and development of a robust application framework, which acts as a transparent interface between Navitas and all of the GDSs.  It’s used as the foundation for all of their products and is used by many thousands of travel agents today.<br/><br/>
 </div>
 
 ###### Reveal Media (April 2006 - June 2009)
 
 <div style="text-align: justify">
-My development career began at Reveal Medial during my university “industrial placement” year.  During my tenure, I led the design and development of a solution which is used by the majority of police constabularies around the UK.  My development efforts represent a major part of an application, which handles evidential video footage from portable surveillance equipment.  As part of these developments, I would frequently provide rapid proof-of-concepts, run exhibition booths and demonstrate my software to constabularies around the country.<br/><br/>
+My development career began at Reveal Medial during my university “industrial placement” year.  During my time there, I led the design and development of a solution which is used by the majority of police constabularies around the UK.  My development efforts represent a major part of an application, which handles evidential video footage from portable surveillance equipment.  As part of these developments, I would frequently provide rapid proof-of-concepts, run exhibition booths and demonstrate my software to constabularies around the country.<br/><br/>
 
-I was asked to continue working for Reveal Media during my final year and I continued to develop for them full-time upon the completion of my degree.<br/><br/>
+I was asked to continue working for Reveal Media part-time during my final year at university and then full-time upon the completion of my degree.<br/><br/>
 </div>
 
 ##### Other Employment History
@@ -124,5 +124,5 @@ I was asked to continue working for Reveal Media during my final year and I cont
 <div style="text-align: justify">
 When I'm not developing professionally, I following the Go development community online and at meetups and conferences and I make contributions to the Open Source community on GitHub and via my website.<br/><br/>
 
-With any time that’s left to me, I enjoy writing and performing music.  To date, I have produced 2 studio EPs and have performed around the south of England.  I play bass guitar, piano, guitar and am currently learning the ukulele and violin, slowly.  I also foster a love for ballet, opera and classical music and attend performances whenever I can.<br/><br/>
+With any time that’s left to me, I enjoy writing and performing music.  To date, I have produced 2 studio EPs and have performed around the south of England.  I play bass guitar, piano, guitar and dip in and out of learning the ukulele, violin and tin whistle.  I also love ballet, opera and classical music and attend performances whenever I can.  In my heart however, I'm still firmly a metalhead \m/.<br/><br/>
 </div>
