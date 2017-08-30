@@ -1,4 +1,4 @@
-Channels are Go's implementation of the Tony Hoare's CSP concurrency model.  Rather than reiterate the basics, I'll dive straight into some silly channel tricks that I've found to be useful.
+Channels are Go's implementation of Tony Hoare's CSP concurrency model.  Rather than reiterate the basics, I'll dive straight into some silly channel tricks that I've found to be useful.
 
 ##### Prevent sender from blocking
 
@@ -101,3 +101,5 @@ SUB #17
 SUB #18
 SUB #19
 ```
+
+More examples to follow!
