@@ -40,4 +40,34 @@ func (s *semaphore) execute(f func()) {
 }
 ```
 
-Feel free to submit pull requests with any channel tricks you've used, otherwise I'll keep this post updated as I encounter more.
+In the following example, we perform 10 operations using a semaphore with 5 slots.  You'll notice from the output that the first 5 operations are completed together and the next 5 operations are completed after:
+
+``` go
+func main() {
+    s := newSemaphore(5)
+
+    for i := 0; i < 10; i++ {
+        j := i
+        s.execute(func() {
+            fmt.Println(j, time.Now())
+            time.Sleep(time.Second)
+        })
+    }
+
+    fmt.Scanln()
+}
+```
+
+``` bash
+$ go run main.go
+4 2017-09-01 07:59:04.6135725 +0100 BST <- first 5
+0 2017-09-01 07:59:04.6135725 +0100 BST
+2 2017-09-01 07:59:04.6135725 +0100 BST
+3 2017-09-01 07:59:04.6135725 +0100 BST
+1 2017-09-01 07:59:04.6135725 +0100 BST
+5 2017-09-01 07:59:05.6147369 +0100 BST <- next 5
+6 2017-09-01 07:59:05.6157369 +0100 BST
+7 2017-09-01 07:59:05.6157369 +0100 BST
+8 2017-09-01 07:59:05.6157369 +0100 BST
+9 2017-09-01 07:59:05.6167397 +0100 BST
+```
