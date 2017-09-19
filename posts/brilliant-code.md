@@ -1,6 +1,6 @@
 ##### tl;dr
 
-If you read code that clearly aims to impress, exert prowess, you're probably dealing with "Brilliant Code".
+If you read code that clearly aims to impress, exert prowess, you're probably dealing with "Brilliant Code".  We've all been guilty of writing Brilliant Code at some point in our careers and some more than others.
 
 ##### Overview
 
