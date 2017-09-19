@@ -86,4 +86,4 @@ Write documentation as if you were consuming your API, not as someone who implic
 
 ### Don't panic.
 
-You should never have to use Go's `panic` construct.  Errors provide the information necessary to allow you to elegantly handle failure scenarios without throwing your toys out the pram. 
+You should never have to use Go's `panic` construct.  Errors provide the information necessary to allow you to elegantly handle failure scenarios without throwing your toys out the pram.
