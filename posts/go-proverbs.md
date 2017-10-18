@@ -1,4 +1,4 @@
-I love (romantic love) the [Go Proverbs](https://go-proverbs.github.io).  I've got a copy of them stuck up on the wall next to me at work and I've stuck one up in the canteen at work.  They're short, sharp and easy to understand, once you understand them.  See [Rob Pike's talk](https://www.youtube.com/watch?v=PAAkCSZUG1cv) for context.
+I love the [Go Proverbs](https://go-proverbs.github.io) and I'm guilty of sticking them to walls indiscriminately.  They're short, sharp and easy to understand.  *Once you understand them*.  See [Rob Pike's talk](https://www.youtube.com/watch?v=PAAkCSZUG1cv) for context.
 
 The idea of language proverbs are nothing new.  Most people have at least *heard* of the [Zen of Python](https://www.python.org/dev/peps/pep-0020/#the-zen-of-python), which helps Python developers develop "pythonic" code.  The Go Proverbs aim to help Go developers write "idiomatic" code in exactly the same vein; they're just more technical.
 
@@ -6,9 +6,7 @@ Here are what the Go Proverbs mean to me (with a bit of help from Rob Pike's tal
 
 ### Don't communicate by sharing memory, share memory by communicating.
 
-In many situations, mutexes are perfectly valid (and arguably the correct) construct to use.  They're easy to reason with *up to a point* and *usually* allow for read/write separation (in Go's case the `RLock/Lock` and `RUnlock/Unlock` methods on `sync.RWMutex`).
 
-In many other situations, mutexes are unecessary, hard to reason with and can slow write access to a shared object if read/write separation has not been properly considered.
 
 ### Concurrency is not parallelism.
 
@@ -16,7 +14,47 @@ Concurrency is *managing* multiple things at once, parallelism is *doing* multip
 
 ### Channels orchestrate; mutexes serialize.
 
-Mutexes allows only one thread of execution into a critical section.  Channels allow for the configuration of thread-safe pipelines of execution.
+The `sync.Mutex` allows just one thread of execution into a critical section at a time.  The `sync.RWMutex` allows for any number of readers and one writer thread of execution.
+
+Orchestrating anything of non-negligible complexity with these primative constructs would become tedious fairly quickly.
+
+Let's write a simple in-memory processing pipeline to highlight how channels might trump mutexes in this situation...
+
+# Implement pipeline with mutexes, then channels
+
+Channels allow for the configuration of thread-safe pipelines of execution.
+
+In many situations, mutexes are perfectly valid (and arguably the correct) construct to use.  They're easy to reason with *up to a point* and *usually* allow for read/write separation (in Go's case the `RLock/Lock` and `RUnlock/Unlock` methods on `sync.RWMutex`).
+
+In many other situations, mutexes are unecessary, hard to reason with and can slow write access to a shared object if read/write separation has not been properly considered.
+
+Did you know that Go's `select` construct allows for thread-safe operations as well?  Using channels, the quintessential bank account example might look something like this:
+
+``` go
+type account struct {
+    credit  chan int
+    debit   chan int
+    stop    chan struct{}
+    balance int
+}
+
+func (a *account) start() {
+    for {
+        select {
+        case amount := <-a.credit:
+            a.balance += amount
+        case amount := <-a.debit:
+            a.balance -= amount
+        case <-a.stop:
+            return
+        }
+    }
+}
+```
+
+You'll notice that there are no `sync` locks around the account's balance and that's because access to each of the `case` statements is serialised.  The `select` statement will happily chug along managing access to channels until two channels have messages ready at the same  time.  In this instance, a random channel will be selected to execute its `case` statement first.
+
+As you can infer, a lot of what's possible with mutexes (with the obvious omission of read/write separation) is also possible and elegant with channels.
 
 ### The bigger the interface, the weaker the abstraction.
 
