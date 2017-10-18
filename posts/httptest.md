@@ -1,0 +1,1 @@
+Go's `httptest` package provides a really simple, elegant way to test your HTTP services.  It allows you to create requests and capture the responses to any server that implements the 
