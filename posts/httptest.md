@@ -51,6 +51,7 @@ import (
 * [Built-in `http.HandleFunc` handlers](#builtin)
 * [Built-in `http.ServeMux` handlers (direct)](#builtin-servemux-direct)
 * [Built-in `http.ServeMux` handlers (routing)](#builtin-servemux-routed)
+* [Built-in `http.ServeMux` handlers (embedded)](#builtin-servemux-embedded)
 * [Wrapped `http.HandleFunc` handlers](#builtin-wrapped)
 * [3rd-party mux handlers (direct)](#mux-direct)
 * [3rd-party mux handlers (routing)](#mux-routing)
@@ -161,30 +162,20 @@ func main() {
     http.ListenAndServe(":1234", mux)
 }
 
-type mux struct {
-    m *http.ServeMux
-}
+func newMux() (m *http.ServeMux) {
+    m = http.NewServeMux()
 
-func newMux() (m *mux) {
-    m = &mux{
-        m: http.NewServeMux(),
-    }
-
-    m.m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
+    m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("hello"))
     })
-    m.m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
+    m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("goodbye"))
     })
     return
 }
-
-func (m *mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    m.m.ServeHTTP(w, r)
-}
 ```
 
-In this example, we attach all of our handlers to the `http.ServeMux` using `HandleFunc` and not `Handle`.  This hides the `ServeHTTP` methods for the handlers themselves, allowing the test code to call the `ServeHTTP` method on the `mux` struct; testing our routing logic.
+In this example, we attach all of our handlers to the `*http.ServeMux` using `HandleFunc` and not `Handle`.  This hides the `ServeHTTP` methods for the handlers themselves, allowing the test code to call the `ServeHTTP` method on the `*http.ServeMux` struct directly; testing our routing logic.
 
 ###### Test code
 
@@ -210,6 +201,39 @@ This time, I've bound two handlers, one for route "/a" and another for "/b".  Th
 ```
 
 Our routing is being tested!
+
+##### <a name="builtin-servemux-embedded"></a>Built-in `http.ServerMux` embedded handlers
+
+In your production code, you're more likely to want to hide the `*http.ServeMux` along with other dependencies in a struct of your own.  It's easy to adapt the [Built-in `http.ServeMux` handlers (routing)](#builtin-servemux-routed) example to hide the `*http.ServeMux`.  There are a couple of ways you could do this but the easiest way is to use embedding:
+
+###### Server code
+
+In this example, we declare a `mux` struct and "embed" the `*http.ServeMux`, which automatically exposes the `ServeHTTP` method on our `mux` struct and the tests pass without modification.
+
+``` go
+func main() {
+    mux := newMux()
+    http.ListenAndServe(":1234", mux)
+}
+
+type mux struct {
+    *http.ServeMux
+}
+
+func newMux() (m *mux) {
+    m = &mux{
+        http.NewServeMux(),
+    }
+
+    m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("hello"))
+    })
+    m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("goodbye"))
+    })
+    return
+}
+```
 
 ##### <a name="builtin-wrapped"></a>Wrapped built-in handlers
 
