@@ -102,7 +102,7 @@ As the call to `NewRecorder` returns a pointer to an `http.ResponseRecorder`, it
 
 The tests pass because we've configured the `hello` function to return a status code of "418" and a body of "hello"; all of which is captured by the `httptest.ResponseRecorder`.
 
-###### <a name="builtin-servemux-direct"></a>Built-in `http.ServerMux` direct handlers
+##### <a name="builtin-servemux-direct"></a>Built-in `http.ServerMux` direct handlers
 
 Go's `http.ServeMux` is a multiplexer that you can configure routes and handlers against.  It's a step between calling `http.HandleFunc`, which abstracts you away from the `http.Handler` interface and a 3rd-party multiplexer that adds additional layers of abstraction.
 
@@ -151,7 +151,7 @@ This time round we're invoking a method receiver on `*handler`, rather than call
 
 Once again, the routing logic to "/" isn't being tested, we're just testing the function that'll get called *after* the requset has been routed.  If you'd like routing to form part of your unit tests, you might want to consider using `http.ServeMux` as follows.
 
-###### <a name="builtin-servemux-routed"></a>Built-in `http.ServerMux` routed handlers
+##### <a name="builtin-servemux-routed"></a>Built-in `http.ServerMux` routed handlers
 
 ###### Server code
 
@@ -211,7 +211,7 @@ This time, I've bound two handlers, one for route "/a" and another for "/b".  Th
 
 Our routing is being tested!
 
-###### <a name="builtin-wrapped"></a>Wrapped built-in handlers
+##### <a name="builtin-wrapped"></a>Wrapped built-in handlers
 
 The `http.HandlerFunc` type reduces a web request to a simple function call.  Functions are first-class citizens in Go, meaning you can call one `http.HandlerFunc` from another.  The preceding `http.HandlerFunc` is referred to as "middleware".
 
@@ -270,7 +270,7 @@ In the test, we create a `*log.Logger` and set its `io.Writer` to be a `*bytes.B
 
 The end-user sees "hello", just as they did before and we're able to call the `String()` method on the logger's writer to assert that our logging middleware wrote the expected log lines.
 
-###### <a name="mux-direct"></a>3rd-party server mux (direct)
+##### <a name="mux-direct"></a>3rd-party server mux (direct)
 
 Every server mux is different and will require a different approach to testing.  Under the covers however, everything is still just `ServeHTTP`, so the tests will look familiar.
 
@@ -369,7 +369,7 @@ func TestHello(t *testing.T) {
 
 In your production code, you're more likely to want to hide the 3rd-party server mux along with other dependencies in a struct of your own.
 
-Testing an embedded Echo mux is just as easy as tested a naked one, you just have to get at its `ServeHTTP` method.  I achieve this by exposing it via a method receiver on my `server` struct:
+Testing an embedded Echo mux is just as easy as testing a naked one, you just have to get at its `ServeHTTP` method.  I achieve this by exposing it via a method receiver on my `server` struct:
 
 ``` go
 func main() {
@@ -406,7 +406,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-It's worth noting that I could have called my `ServeHTTP` method anything, as it's not essential for testing.  However, it allows us to use `server` directly in a `http.Handler`, so there's a hidden benefit.
+It's worth noting that I could have called my `ServeHTTP` method anything, as it's not essential for the tests.  However, it does allows us to use `server` directly in a `http.Handler` and semantically, it's clear to others what's happening so there are definitely benefits.
 
 ###### Test code
 
