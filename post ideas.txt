@@ -1,9 +1,7 @@
 Blog post ideas
 ===============
 
-
 -   = started
-+   = finished
 x   = published
 
 go
@@ -15,6 +13,16 @@ go
   [ ] vs c# performance
   [ ] closures and tear-down
   [ ] logging with logrus (UTCFormatter, hooks for testing etc.)
+
+configuration
+  [ ] Re-creating the Docker CLI from scratch with Cobra commands
+
+web
+  [ ] Unit testing various types of web server (handlers, echo, wrapped in server etc.)
+  [ ] Yet Another Mux (a naïve server mux implementation from scratch)
+
+ops
+  [x] go and docker walkthrough
 
 people and projects
   [-] brilliant code
