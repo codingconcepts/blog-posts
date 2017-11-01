@@ -51,6 +51,7 @@ import (
 * [Built-in `http.HandleFunc` handlers](#builtin)
 * [Built-in `http.ServeMux` handlers (direct)](#builtin-servemux-direct)
 * [Built-in `http.ServeMux` handlers (routing)](#builtin-servemux-routed)
+* [Built-in `http.ServeMux` handlers (embedded)](#builtin-servemux-embedded)
 * [Wrapped `http.HandleFunc` handlers](#builtin-wrapped)
 * [3rd-party mux handlers (direct)](#mux-direct)
 * [3rd-party mux handlers (routing)](#mux-routing)
@@ -102,7 +103,7 @@ As the call to `NewRecorder` returns a pointer to an `http.ResponseRecorder`, it
 
 The tests pass because we've configured the `hello` function to return a status code of "418" and a body of "hello"; all of which is captured by the `httptest.ResponseRecorder`.
 
-###### <a name="builtin-servemux-direct"></a>Built-in `http.ServerMux` direct handlers
+##### <a name="builtin-servemux-direct"></a>Built-in `http.ServerMux` direct handlers
 
 Go's `http.ServeMux` is a multiplexer that you can configure routes and handlers against.  It's a step between calling `http.HandleFunc`, which abstracts you away from the `http.Handler` interface and a 3rd-party multiplexer that adds additional layers of abstraction.
 
@@ -151,7 +152,7 @@ This time round we're invoking a method receiver on `*handler`, rather than call
 
 Once again, the routing logic to "/" isn't being tested, we're just testing the function that'll get called *after* the requset has been routed.  If you'd like routing to form part of your unit tests, you might want to consider using `http.ServeMux` as follows.
 
-###### <a name="builtin-servemux-routed"></a>Built-in `http.ServerMux` routed handlers
+##### <a name="builtin-servemux-routed"></a>Built-in `http.ServerMux` routed handlers
 
 ###### Server code
 
@@ -161,30 +162,20 @@ func main() {
     http.ListenAndServe(":1234", mux)
 }
 
-type mux struct {
-    m *http.ServeMux
-}
+func newMux() (m *http.ServeMux) {
+    m = http.NewServeMux()
 
-func newMux() (m *mux) {
-    m = &mux{
-        m: http.NewServeMux(),
-    }
-
-    m.m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
+    m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("hello"))
     })
-    m.m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
+    m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("goodbye"))
     })
     return
 }
-
-func (m *mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    m.m.ServeHTTP(w, r)
-}
 ```
 
-In this example, we attach all of our handlers to the `http.ServeMux` using `HandleFunc` and not `Handle`.  This hides the `ServeHTTP` methods for the handlers themselves, allowing the test code to call the `ServeHTTP` method on the `mux` struct; testing our routing logic.
+In this example, we attach all of our handlers to the `*http.ServeMux` using `HandleFunc` and not `Handle`.  This hides the `ServeHTTP` methods for the handlers themselves, allowing the test code to call the `ServeHTTP` method on the `*http.ServeMux` struct directly; testing our routing logic.
 
 ###### Test code
 
@@ -211,7 +202,40 @@ This time, I've bound two handlers, one for route "/a" and another for "/b".  Th
 
 Our routing is being tested!
 
-###### <a name="builtin-wrapped"></a>Wrapped built-in handlers
+##### <a name="builtin-servemux-embedded"></a>Built-in `http.ServerMux` embedded handlers
+
+In your production code, you're more likely to want to hide the `*http.ServeMux` along with other dependencies in a struct of your own.  It's easy to adapt the [Built-in `http.ServeMux` handlers (routing)](#builtin-servemux-routed) example to hide the `*http.ServeMux`.  There are a couple of ways you could do this but the easiest way is to use embedding:
+
+###### Server code
+
+In this example, we declare a `mux` struct and "embed" the `*http.ServeMux`, which automatically exposes the `ServeHTTP` method on our `mux` struct and the tests pass without modification.
+
+``` go
+func main() {
+    mux := newMux()
+    http.ListenAndServe(":1234", mux)
+}
+
+type mux struct {
+    *http.ServeMux
+}
+
+func newMux() (m *mux) {
+    m = &mux{
+        http.NewServeMux(),
+    }
+
+    m.HandleFunc("/a", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("hello"))
+    })
+    m.HandleFunc("/b", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("goodbye"))
+    })
+    return
+}
+```
+
+##### <a name="builtin-wrapped"></a>Wrapped built-in handlers
 
 The `http.HandlerFunc` type reduces a web request to a simple function call.  Functions are first-class citizens in Go, meaning you can call one `http.HandlerFunc` from another.  The preceding `http.HandlerFunc` is referred to as "middleware".
 
@@ -270,7 +294,7 @@ In the test, we create a `*log.Logger` and set its `io.Writer` to be a `*bytes.B
 
 The end-user sees "hello", just as they did before and we're able to call the `String()` method on the logger's writer to assert that our logging middleware wrote the expected log lines.
 
-###### <a name="mux-direct"></a>3rd-party server mux (direct)
+##### <a name="mux-direct"></a>3rd-party server mux (direct)
 
 Every server mux is different and will require a different approach to testing.  Under the covers however, everything is still just `ServeHTTP`, so the tests will look familiar.
 
@@ -369,7 +393,7 @@ func TestHello(t *testing.T) {
 
 In your production code, you're more likely to want to hide the 3rd-party server mux along with other dependencies in a struct of your own.
 
-Testing an embedded Echo mux is just as easy as tested a naked one, you just have to get at its `ServeHTTP` method.  I achieve this by exposing it via a method receiver on my `server` struct:
+Testing an embedded Echo mux is just as easy as testing a naked one, you just have to get at its `ServeHTTP` method.  I achieve this by exposing it via a method receiver on my `server` struct:
 
 ``` go
 func main() {
@@ -406,7 +430,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-It's worth noting that I could have called my `ServeHTTP` method anything, as it's not essential for testing.  However, it allows us to use `server` directly in a `http.Handler`, so there's a hidden benefit.
+It's worth noting that I could have called my `ServeHTTP` method anything, as it's not essential for the tests.  However, it does allows us to use `server` directly in a `http.Handler` and semantically, it's clear to others what's happening so there are definitely benefits.
 
 ###### Test code
 
