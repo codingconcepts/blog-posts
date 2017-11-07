@@ -1,18 +1,18 @@
 I've made two attemps at bringing Go into a company, once successfully, once unsuccessfully.
 
-Following a successful adoption of the language (through to a Production environment), I wanted to document what I think are the reasons for this adoption, along with the reasons you might fail, as I did with my first attempt.
+Following a department-definingly successful adoption of the language, I wanted to document what I think are the reasons for this success, along with the reasons you might fail, as I did with my first attempt.
 
 ### Reasons for adopting
 
 ##### A good use case
 
-However heartfelt your proposition, if there isn't the use case for Go, you've hit a dead-end.  In my case, a good use case didn't appear until I'd been plugging Go for around 6 months and even then, there was a chance that this use case wouldn't have landed in my team.  Be patience and don't force Go into something it's not suited for, it could backfire and leave you red-faced.
+However heartfelt your proposition, if there isn't the use case for Go, you've fallen at the first hurdle.  In my case, a good use case didn't appear until I'd been plugging Go for around 6 months and even then, there was a chance that this use case wouldn't have landed in my team.  Be patient and don't force Go into something it's not suited for, it could backfire and leave you red-faced.
 
 ##### Open-mindedness
 
 This is an obvious one but unless your team are open to the idea of deviating from their One True Language, you'll be at a different kind of dead-end.
 
-Look at the tools your company use to develop and deploy their software.  If there is a mix of programming languages being used for different tasks (e.g. C# for APIs, Ruby to deploy via Chef etc.), you might be in luck.  If on the other hand, your company are shoe-horning in the use of C# for C#'s sake, you'll likely have a harder time.
+Look at the tools your company use to develop and deploy their software.  If there is a mix of programming languages being used for different tasks (e.g. C# for APIs, Ruby to deploy via Chef etc.), you might be in luck.  If on the other hand, your company are shoe-horning in the use of C# for C#'s sake, you'll likely have a much harder time.
 
 ### Reasons for not adopting
 
