@@ -1,7 +1,6 @@
 Blog post ideas
 ===============
 
-
 -   = started
 +   = finished
 x   = published
