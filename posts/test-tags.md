@@ -2,7 +2,7 @@ One of the most useful go build flags I've used recently is tags.  Its purpose i
 
 The tags flag is also available to the go test command, which means you can toggle swathes of tests on and off, without having to resort to code changes such as using flag in your TestMain function or - heaven forbid - writing logic into your tests themselves.
 
-To save everyone having to write boilerplate code or learn an ORM, a colleague and I wrote a tool to generate Go structs from MySQL tables modelgen.  In addition to outputing generated structs, we also provide some helper structs to handle primative types going into and out of nullable database fields.
+As part of a massive Go microservice rollout and to save everyone having to write boilerplate code or learn an ORM, a colleague and I wrote a tool to generate Go structs from MySQL tables modelgen.  In addition to outputing generated structs, we also provide some helper structs to handle primative types going into and out of nullable database fields.
 
 These helper structs are bundled in with packr into a file called x_helpers.go and their tests are also bundled for completeness, into a file - unsurprisingly - calld x_helpers_test.go.  These structs are thoroughly tested, which means when the project that references them calls go test -v, there's a lot of output.
 
