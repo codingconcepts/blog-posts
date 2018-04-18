@@ -1,20 +1,20 @@
 
 
-When developing a service, it's important to ensure you have decent test coverage of its endpoints.  I've seen endpoint coverage acheived in a number of ways, some interesting, some *interesting* and I'd like to share my pattern.
+When developing a service, you'll want to ensure that you have decent test coverage of its endpoints.  I've seen endpoint coverage achieved in a number of ways, some interesting, some *interesting* and I'd like to share my method.
 
-If you've arrived here, you're probably no stranger to validating input to request endpoints and it's this use case that I've found to be best suited to the method I'll be demonstrating.
+If you've arrived here, you're probably no stranger to validating input to endpoints and it's this use case that I'll be demonstrating here.
 
-First and foremost, I'm using table-drive tests.  In the context of service testing, they allow me to make multiple, similar requests to a service, without changing the test code I'm using to invoke the service, or poluting my test cases with huge, largely identical code.
+First and foremost, I'm using table-drive tests.  In the context of service testing, they allow me to make multiple, requests to a service, using similar request bodies, without changing the test code I'm using to invoke the service, or polluting my test cases with huge, largely identical code.
 
-To keep things simple, I've written a very contrived example of a service, which satisfies the following simple contract:
+To keep things simple, I've written a very contrived example of a service, which satisfies the following contract:
 
 * Takes an `application/json` body which contains a first and last name.
-* It asserts that both the first and second name have been provided.
+* It asserts that both the first and second name have been provided and are of sensible lengths.
 * It returns a full name, which is the concatenation of first and last name.
 
 ##### Code
 
-I'm using [govalidator](https://github.com/asaskevich/govalidator) to validate the input and to make the various error states obvious, I'm using custom error messages.  So you'll have to excuse the verbosity:
+I'm using [govalidator](https://github.com/asaskevich/govalidator) to validate the input and in order to make the various error states obvious, I'm using custom error message.  So you'll have to excuse the verbosity:
 
 ``` go
 type fullNameRequest struct {
@@ -62,7 +62,7 @@ func bindJSON(rc io.ReadCloser, target interface{}) error {
 }
 ```
 
-As you've probably guessed, to run the server, it's the standard two-liner:
+To run the server, it's the standard two-liner:
 
 ``` go
 func main() {
@@ -91,7 +91,7 @@ Rather than paste one massive test method, I've separate each section out into i
 * For each of the test cases:
   * Create a valid request for the endpoint using a struct.
   * Modify it to make it invalid.
-  * Marshal the stuct to something we can chuck at the endpoint.
+  * Marshal the stuct to something we can throw at the endpoint.
   * Perform some expectations.
 
 Like in the service code, I've included any helpers I've used to A) keep the code clean and B) give you something to copy/paste if you think it'd be useful:
@@ -128,7 +128,7 @@ cases := []struct {
 }
 ```
 
-Next, are the test definitions themselves.  I've included just enough of them to demonstrate what's happening.  Notice that I'm not creating a new `fullNameRequest` for every test case, the usefulness of this pattern comes into its own as struct size increases. 
+Next, are the test definitions themselves.  I've included just enough of them to demonstrate what's happening.  Notice that I'm not creating a new `fullNameRequest` for every test case, so the usefulness of this pattern comes into its own as struct size increases. 
 
 ``` go
 {
@@ -154,7 +154,7 @@ Next, are the test definitions themselves.  I've included just enough of them to
 }
 ```
 
-In the main body of the function, we're creating a decent request and passing it to the `mod` function if one has been provided.  We're then wanging the request through the `ToJSONBody` function to derive an `io.Reader` to chuck at the endpoint.  Finally, we're asserting that the expected status code and response body have been returned.
+In the main body of the function, we're creating a decent request and passing it to the `mod` function if one has been provided.  We're then passing the request through the `ToJSONBody` function to derive an `io.Reader` to chuck at the endpoint.  Finally, we're asserting that the expected status code and response body have been returned.
 
 ``` go
 t.Run(c.name, func(t *testing.T) {
