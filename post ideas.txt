@@ -18,7 +18,7 @@ configuration
   [ ] Re-creating the Docker CLI from scratch with Cobra commands
 
 web
-  [ ] Unit testing various types of web server (handlers, echo, wrapped in server etc.)
+  [x] Unit testing various types of web server (handlers, echo, wrapped in server etc.)
   [ ] Yet Another Mux (a naïve server mux implementation from scratch)
 
 ops
