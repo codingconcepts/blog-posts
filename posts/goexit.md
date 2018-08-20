@@ -230,7 +230,6 @@ fatal error: no goroutines (main called runtime.Goexit) - deadlock!
 <EXIT 2>
 ```
 
-
 This solution understandably won't be for everyone, especially if you're working with inexperienced gophers (for reasons of sheer confusion, "my application keeps failing" and "nice, I'll use this everywhere) but it's nevertheless an interesting one, if only from an academic perspective.
 
 ###### Summary
